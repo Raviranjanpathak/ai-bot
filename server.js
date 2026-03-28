@@ -54,5 +54,5 @@ app.get("/chat", (req, res) => {
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-  console.log(`🚀 RaviiBot running on http://localhost:${port}`);
+  console.log(`🚀 RaviBot running on http://localhost:${port}`);
 });
