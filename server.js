@@ -44,9 +44,7 @@ app.use("/", chatRoutes);
 app.use("/", imageRoutes);
 
 // ================= BASIC ROUTES =================
-app.get("/", (req, res) => {
-  res.render("index", { user: req.session.user || null });
-});
+
 
 app.get("/chat", (req, res) => {
   res.render("index", { user: req.session.user || null });
