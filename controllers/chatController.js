@@ -5,9 +5,13 @@ const API_KEY = process.env.OPENROUTER_API_KEY;
 
 
 const MODELS = [
-  "meta-llama/llama-3-8b-instruct",
-  "google/gemma-7b-it",
-  "mistralai/mistral-7b-instruct"
+  "openrouter/auto",                 // 🔥 BEST (auto picks working model)
+  "mistralai/mistral-7b-instruct",   // ✅ reliable
+  "meta-llama/llama-3-8b-instruct",  // ✅ sometimes works
+  "google/gemma-7b-it",              // ⚠️ limited access
+  "nousresearch/nous-hermes-2-mixtral-8x7b-dpo", // ✅ good free model
+  "openchat/openchat-7b",            // ✅ lightweight & fast
+  "gryphe/mythomist-7b"              // ✅ stable fallback
 ];
 const systemPrompt = `
 You are RaviBot, a smart, polite, and reliable AI assistant created by Ravi.
