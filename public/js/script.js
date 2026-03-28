@@ -37,7 +37,7 @@ function formatMessage(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // line breaks
+  
   formatted = formatted.replace(/\n/g, "<br>");
 
   // EMAIL
@@ -71,7 +71,7 @@ function speak(text) {
   const utterance = new SpeechSynthesisUtterance(cleanText);
   const voices = speechSynthesis.getVoices();
 
-  // 🎯 Best female voices priority
+  
   let voice =
     voices.find(v => v.name.includes("Google") && v.name.includes("Female")) ||
     voices.find(v => v.name.includes("Zira")) ||
@@ -80,15 +80,15 @@ function speak(text) {
 
   utterance.voice = voice;
 
-  // 🌍 Language detection
+  
   if (/[\u0900-\u097F]/.test(cleanText)) {
-    utterance.lang = "hi-IN";   // Hindi
+    utterance.lang = "hi-IN";   
   } else {
-    utterance.lang = "en-US";   // English
+    utterance.lang = "en-US";   
   }
 
-  utterance.rate = 0.9;   // slower = clearer
-  utterance.pitch = 1.1;  // softer tone
+  utterance.rate = 0.9;   
+  utterance.pitch = 1.1;  
 
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
@@ -237,7 +237,7 @@ function stopVoice() {
   //  Stop bot speaking
   window.speechSynthesis.cancel();
 
-  // 🎤 Remove mic glow
+  //  Remove mic glow
   micBtn.classList.remove("listening");
 
   //  HIDE VOICE WAVE (IMPORTANT)
@@ -368,15 +368,15 @@ function toggleSidebar() {
   const sidebar = document.querySelector(".sidebar");
   sidebar.classList.toggle("active");
 }
+
 document.addEventListener("click", (e) => {
   const sidebar = document.querySelector(".sidebar");
-  console.log("Toggle clicked");
   const menuBtn = document.querySelector(".menu-btn");
 
   if (
     sidebar.classList.contains("active") &&
     !sidebar.contains(e.target) &&
-    e.target !== menuBtn
+    !menuBtn.contains(e.target)   
   ) {
     sidebar.classList.remove("active");
   }

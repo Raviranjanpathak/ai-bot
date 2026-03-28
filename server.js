@@ -1,13 +1,13 @@
 require("dotenv").config();
 
-const express = require("express");          // ✅ missing
+const express = require("express");          
 const cors = require("cors");
-const session = require("express-session");  // ✅ missing
+const session = require("express-session");  
 const path = require("path");
 
-const connectDB = require("./config/db");    // ✅ missing
+const connectDB = require("./config/db");   
 
-// ✅ ROUTES
+// ROUTES
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const imageRoutes = require("./routes/imageRoutes");
@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 // ================= SESSION =================
 app.use(session({
-  secret: "secretkey", // later move to .env
+  secret: "secretkey", 
   resave: false,
   saveUninitialized: true
 }));
@@ -49,11 +49,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/chat", (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
-
-  res.render("index", { user: req.session.user });
+  res.render("index", { user: req.session.user || null });
 });
 
 // ================= SERVER =================

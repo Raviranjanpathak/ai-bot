@@ -5,13 +5,9 @@ const API_KEY = process.env.OPENROUTER_API_KEY;
 
 
 const MODELS = [
-  "openrouter/auto",                 // 🔥 BEST (auto picks working model)
-  "mistralai/mistral-7b-instruct",   // ✅ reliable
-  "meta-llama/llama-3-8b-instruct",  // ✅ sometimes works
-  "google/gemma-7b-it",              // ⚠️ limited access
-  "nousresearch/nous-hermes-2-mixtral-8x7b-dpo", // ✅ good free model
-  "openchat/openchat-7b",            // ✅ lightweight & fast
-  "gryphe/mythomist-7b"              // ✅ stable fallback
+  "meta-llama/llama-3-8b-instruct",
+  "google/gemma-7b-it",
+  "mistralai/mistral-7b-instruct"
 ];
 const systemPrompt = `
 You are RaviBot, a smart, polite, and reliable AI assistant created by Ravi.
@@ -128,14 +124,14 @@ Always ensure the response is clear and easy for voice output.
 function cleanResponse(text) {
   if (!text) return "Sorry, I couldn't understand that.";
 
-  // If code detected → skip cleaning
+  
   if (text.includes("#include") || text.includes("printf") || text.includes("{")) {
     return text;
   }
 
   let cleaned = text.trim();
 
-  // keep basic cleaning only
+  
   cleaned = cleaned.replace(/[_*@]+/g, "");
 
   return cleaned;
