@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RaviBot</title>
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button class="new-chat" onclick="createNewChat()">+ New Chat</button>
+
+    <div class="history" id="chatList"></div>
+  </div>
+
+  <!--  MAIN -->
+  <div class="main">
+
+    <!--  TOP -->
+  <div class="topbar">
+
+  <!-- LEFT SIDE -->
+  <div class="left-section">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="botName">RaviBot</div>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="auth">
+    <% if (!user) { %>
+      <a href="/login" class="login-btn">Login to chat</a>
+      <a href="/register">Sign up</a>
+    <% } else { %>
+      <span><%= user.name %></span>
+      <a href="/logout">Logout</a>
+    <% } %>
+  </div>
+
+</div>
+
+    <!--  CHAT AREA -->
+    <div id="messages" class="messages"></div>
+
+    <!--  TYPING -->
+    <div id="typing" class="typing"></div>
+
+    <!--  LOGIN MESSAGE -->
+    <% if (!user) { %>
+      <div class="typing">🔐 Login to start chatting</div>
+    <% } %>
+
+    <!--  INPUT -->
+    <div class="input-area">
+      <input id="input" placeholder="Ask anything..." />
+
+      <!-- IMAGE UPLOAD -->
+      <input type="file" id="imageInput" accept="image/*" hidden />
+      <button class="img-btn" onclick="document.getElementById('imageInput').click()">📷</button>
+
+      <!--  MIC -->
+      <button class="mic-btn" onclick="toggleVoice()">🎤</button>
+
+      <div id="wave" class="wave hidden">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <!--  SEND -->
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+
+    <!--  FOOTER -->
+    <p class="footer">
+      By messaging Ravibot, you agree to our Terms and Privacy Policy.
+    </p>
+
+  </div>
+</div>
+
+<script>
+function goLogin() {
+  window.location.href = "/login";
+}
+</script>
+
+<script src="/js/script.js"></script>
+
+</body>
+</html>

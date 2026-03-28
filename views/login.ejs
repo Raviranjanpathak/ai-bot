@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/login.css">
+    
+</head>
+<body>
+
+<div class="container">
+    <h2>Welcome Back </h2>
+    <p>Please login to continue</p>
+    
+
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit">Login</button>
+
+        <div class="link">
+            Don't have an account? <a href="/register">Register</a>
+        </div>
+        <% if (typeof error !== "undefined") { %>
+  <div class="error">
+            <%= error %>
+        </div>
+        <% } %>
+    </form>
+    <script>
+    window.onload = () => {
+    document.querySelector("form").reset();
+    };
+    </script>
+</div>
+
+</body>
+</html>
