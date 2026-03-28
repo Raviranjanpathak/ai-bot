@@ -366,19 +366,24 @@ window.onload = () => {
 
 function toggleSidebar() {
   const sidebar = document.querySelector(".sidebar");
+  const overlay = document.querySelector(".overlay");
+
   sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
 }
 
 document.addEventListener("click", (e) => {
   const sidebar = document.querySelector(".sidebar");
+  const overlay = document.querySelector(".overlay");
   const menuBtn = document.querySelector(".menu-btn");
 
   if (
     sidebar.classList.contains("active") &&
     !sidebar.contains(e.target) &&
-    !menuBtn.contains(e.target)   
+    !menuBtn.contains(e.target)
   ) {
     sidebar.classList.remove("active");
+    overlay.classList.remove("active");
   }
 });
 

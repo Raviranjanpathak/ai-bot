@@ -351,3 +351,84 @@ body {
 .messages a:hover {
   text-decoration: underline;
 }
+/* ADD THIS AT VERY END */
+
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 1500;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* MOBILE FIX */
+@media (max-width: 768px) {
+
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100vh;
+    z-index: 2000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  .messages {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 85%;
+    font-size: 14px;
+  }
+
+  .input-area {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .input-area input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .input-area button {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .topbar {
+    padding: 10px;
+  }
+
+  .botName {
+    font-size: 16px;
+  }
+
+  .footer {
+    font-size: 10px;
+    margin: 5px;
+  }
+}
