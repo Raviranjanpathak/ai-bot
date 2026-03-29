@@ -8,6 +8,7 @@ let isSpeaking = false;
 let forceStop = false;
 let currentChatId = null;
 let speechLock = false;
+let recognitionActive = false;
 
 const wave = document.getElementById("wave");
 const micBtn = document.querySelector(".mic-btn");
@@ -63,6 +64,15 @@ function cleanTextForSpeech(text) {
 function speak(text) {
   const cleanText = cleanTextForSpeech(text);
 
+  // 🛑 HARD STOP mic (mobile fix)
+  if (recognition && recognitionActive) {
+    try {
+      recognition.onend = null;
+      recognition.stop();
+      recognitionActive = false;
+    } catch (e) {}
+  }
+
   const utterance = new SpeechSynthesisUtterance(cleanText);
   const voices = speechSynthesis.getVoices();
 
@@ -73,25 +83,26 @@ function speak(text) {
     voices[0];
 
   utterance.voice = voice;
-
   utterance.lang = /[\u0900-\u097F]/.test(cleanText) ? "hi-IN" : "en-US";
+
   utterance.rate = 0.9;
   utterance.pitch = 1.1;
 
   isSpeaking = true;
-  speechLock = true; // 🔒 lock mic
+  speechLock = true;
 
   utterance.onend = () => {
-    console.log("✅ Speech finished");
+    console.log("Speech done");
 
     setTimeout(() => {
       isSpeaking = false;
       speechLock = false;
 
+      // 🎤 restart mic safely
       if (voiceEnabled && !forceStop) {
         startVoice();
       }
-    }, 800); // 🔥 delay fix for mobile
+    }, 1200); // 🔥 BIG delay for mobile stability
   };
 
   speechSynthesis.cancel();
@@ -232,16 +243,20 @@ function startVoice() {
 };
 
   recognition.onend = function () {
+  recognitionActive = false;
+
   if (isListening && !forceStop && !speechLock) {
     setTimeout(() => {
       try {
         recognition.start();
+        recognitionActive = true;
       } catch (e) {}
-    }, 500);
+    }, 700);
   }
 };
 
   recognition.start();
+  recognitionActive = true;
 }
 
 //  STOP VOICE
