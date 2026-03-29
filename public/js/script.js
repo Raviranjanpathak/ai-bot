@@ -7,6 +7,7 @@ let voiceEnabled = false;
 let isSpeaking = false;
 let forceStop = false;
 let currentChatId = null;
+let speechLock = false;
 
 const wave = document.getElementById("wave");
 const micBtn = document.querySelector(".mic-btn");
@@ -61,8 +62,10 @@ function cleanTextForSpeech(text) {
 //  Speak
 function speak(text) {
   const cleanText = cleanTextForSpeech(text);
+
   const utterance = new SpeechSynthesisUtterance(cleanText);
   const voices = speechSynthesis.getVoices();
+
   let voice =
     voices.find(v => v.name.includes("Google") && v.name.includes("Female")) ||
     voices.find(v => v.name.includes("Zira")) ||
@@ -71,27 +74,24 @@ function speak(text) {
 
   utterance.voice = voice;
 
-  if (/[\u0900-\u097F]/.test(cleanText)) {
-    utterance.lang = "hi-IN";
-  } else {
-    utterance.lang = "en-US";
-  }
-
+  utterance.lang = /[\u0900-\u097F]/.test(cleanText) ? "hi-IN" : "en-US";
   utterance.rate = 0.9;
   utterance.pitch = 1.1;
 
-  // SET speaking flag
   isSpeaking = true;
+  speechLock = true; // 🔒 lock mic
 
   utterance.onend = () => {
-    isSpeaking = false;
+    console.log("✅ Speech finished");
 
-    // restart mic AFTER speaking
-    if (voiceEnabled && !forceStop) {
-      setTimeout(() => {
+    setTimeout(() => {
+      isSpeaking = false;
+      speechLock = false;
+
+      if (voiceEnabled && !forceStop) {
         startVoice();
-      }, 300);
-    }
+      }
+    }, 800); // 🔥 delay fix for mobile
   };
 
   speechSynthesis.cancel();
@@ -199,7 +199,7 @@ function startVoice() {
   recognition.onresult = function (event) {
 
   //  ignore bot voice
-  if (isSpeaking) return;
+  if (isSpeaking || speechLock) return;
 
   const text =
     event.results[event.results.length - 1][0].transcript;
@@ -232,10 +232,14 @@ function startVoice() {
 };
 
   recognition.onend = function () {
-    if (isListening && !forceStop) {
-      recognition.start();
-    }
-  };
+  if (isListening && !forceStop && !speechLock) {
+    setTimeout(() => {
+      try {
+        recognition.start();
+      } catch (e) {}
+    }, 500);
+  }
+};
 
   recognition.start();
 }
