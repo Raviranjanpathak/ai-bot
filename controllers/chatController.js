@@ -2,8 +2,6 @@ const axios = require("axios");
 const Chat = require("../models/Chat");
 
 const API_KEY = process.env.OPENROUTER_API_KEY;
-
-
 const MODELS = [
   "meta-llama/llama-3-8b-instruct",
   "google/gemma-7b-it",
@@ -11,13 +9,9 @@ const MODELS = [
 ];
 const systemPrompt = `
 You are RaviBot, a smart, polite, and reliable AI assistant created by Ravi.
-
 Your goal is to communicate clearly, naturally, and correctly.
-
 ---
-
 ## LANGUAGE RULES
-
 * Always reply in ONE clear language only.
 * If the user writes in English → reply in clear and correct English.
 * If the user writes in Hindi → reply in proper Hindi (Devanagari script).
@@ -26,21 +20,15 @@ Your goal is to communicate clearly, naturally, and correctly.
   • Otherwise reply in English.
 * NEVER mix Hindi and English in the same sentence.
 * NEVER reply in Hinglish.
-
 ---
-
 ## STRICT RULES (VERY IMPORTANT)
-
 * NEVER generate mixed-language sentences.
 * NEVER repeat the same sentence in another language.
 * NEVER produce broken, incorrect, or meaningless sentences.
 * NEVER use strange symbols or unnecessary characters.
 * NEVER behave like a translator.
-
 ---
-
 ## TONE & STYLE
-
 * Keep replies short, clear, and natural.
 * Use simple words for better voice clarity.
 * Speak like a real human assistant.
@@ -48,28 +36,20 @@ Your goal is to communicate clearly, naturally, and correctly.
 * Avoid over-explaining unless asked.
 * Do NOT repeat your name unnecessarily.
 * Do NOT say "I am a language model".
-
 ---
-
 ## VOICE OPTIMIZATION
-
 * Use short and well-structured sentences.
 * Avoid complex or long sentences.
 * Make responses easy to read aloud clearly.
 * Prefer natural conversational tone.
-
 ---
-
 ## BEHAVIOR RULES
-
 * If user asks "who are you" → say you are RaviBot.
 * If user asks "do you know me" → say you don’t know personally but can help.
 * If input is unclear → ask for clarification politely.
 * If user greets → respond naturally and politely.
 * If user asks for code → always return properly formatted code using code blocks.
-
 ---
-
 ## EXAMPLES
 
 User: hello
@@ -88,8 +68,6 @@ User: you know me
 Bot: I don’t know you personally yet, but I’m here to help 😊
 
 ---
-
-
 ## CREATOR INFORMATION (IMPORTANT)
 
 * If the user asks about your creator, developer, owner, or maker:
@@ -119,28 +97,20 @@ Never produce confusing, mixed, or broken sentences.
 Always ensure the response is clear and easy for voice output.
 `;
 
-
-
 function cleanResponse(text) {
   if (!text) return "Sorry, I couldn't understand that.";
 
-  
   if (text.includes("#include") || text.includes("printf") || text.includes("{")) {
     return text;
   }
 
   let cleaned = text.trim();
-
-  
   cleaned = cleaned.replace(/[_*@]+/g, "");
-
   return cleaned;
 }
-
-
-
+// --------Main chat route----------
 exports.chat = async (req, res) => {
-    if (!req.session.user) {
+if (!req.session.user) {
         return res.status(401).json({ error: "Please login first" });
       }
     
@@ -176,10 +146,7 @@ You can explore more or connect with me here:
 I'm always happy to help and collaborate with you!`;
 }
         
-    
-        
         // WEATHER
-        
         if (lowerMsg.includes("weather") || lowerMsg.includes("mausam")) {
           try {
             const weather = await axios.get(
@@ -205,8 +172,6 @@ I'm always happy to help and collaborate with you!`;
         else if (lowerMsg.includes("business")) topic = "business";
     
         let articles = [];
-    
-        
         try {
           let url = topic
             ? `https://newsapi.org/v2/top-headlines?country=in&category=${topic}&pageSize=5&apiKey=${process.env.NEWS_API_KEY}`
@@ -219,7 +184,6 @@ I'm always happy to help and collaborate with you!`;
           console.log("Top-headlines failed");
         }
     
-        
         if (!articles.length) {
           const query = topic ? `india ${topic}` : "india";
     
@@ -229,8 +193,6 @@ I'm always happy to help and collaborate with you!`;
     
           articles = res2.data.articles || [];
         }
-    
-      
         if (!articles.length) {
           reply = "No news available right now.";
         } else {
@@ -246,30 +208,19 @@ I'm always happy to help and collaborate with you!`;
         reply = "News service not available.";
       }
     }
-       
         //  DATE
-        
         else if (lowerMsg.includes("date") || lowerMsg.includes("tareekh")) {
           reply = `📅 Today is ${new Date().toDateString()}`;
         }
-    
-      
         //  TIME
-       
         else if (lowerMsg.includes("time") || lowerMsg.includes("samay")) {
           reply = `⏰ Current time is ${new Date().toLocaleTimeString()}`;
         }
-    
-       
         //  YEAR
-       
         else if (lowerMsg.includes("year") || lowerMsg.includes("saal")) {
           reply = `📆 Current year is ${new Date().getFullYear()}`;
         }
-    
-      
         //  CALCULATOR
-       
         else if (/^[0-9+\-*/().\s]+$/.test(message)) {
           try {
             const result = Function(`"use strict"; return (${message})`)();
@@ -278,13 +229,9 @@ I'm always happy to help and collaborate with you!`;
             reply = "Invalid calculation.";
           }
         }
-    
-    
         // AI RESPONSE
-       
         else {
           reply = "Sorry, I'm having trouble right now.";
-    
           for (let model of MODELS) {
             try {
               const response = await axios.post(
@@ -306,7 +253,6 @@ I'm always happy to help and collaborate with you!`;
               );
     
               const data = response.data;
-    
               if (data.choices?.length > 0) {
                 let rawReply = data.choices[0].message.content;
                 reply = cleanResponse(rawReply);
@@ -318,16 +264,11 @@ I'm always happy to help and collaborate with you!`;
             }
           }
         }
-    
-        
         //  SAVE TO CHAT (FIXED)
-        
         const chat = await Chat.findById(chatId);
-    
         if (!chat) {
           return res.json({ reply: "Chat not found" });
         }
-    
         //  user message
         chat.messages.push({
           role: "user",
@@ -339,14 +280,10 @@ I'm always happy to help and collaborate with you!`;
           role: "bot",
           content: reply
         });
-    
-        
         if (chat.title === "New Chat") {
           chat.title = message.substring(0, 25);
         }
-    
         await chat.save();
-    
         res.json({ reply });
     
       } catch (error) {
@@ -355,8 +292,7 @@ I'm always happy to help and collaborate with you!`;
       }
     };
     
-
-
+// ---creating new chat------------
 exports.newChat = async (req, res) => {
    if (!req.session.user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -377,7 +313,7 @@ exports.newChat = async (req, res) => {
     }
   };
 
-
+// ---------Accessing chat from DB--------
 exports.getChats = async (req, res) => {
    if (!req.session.user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -390,6 +326,7 @@ exports.getChats = async (req, res) => {
     res.json(chats);
   };
 
+  // ------------Deleting chat-----------
 exports.deleteChat = async (req, res) => {
    if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });

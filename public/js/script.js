@@ -19,6 +19,7 @@ speechSynthesis.onvoiceschanged = () => {
 // Add message
 function addMessage(text, sender) {
   const messages = document.getElementById("messages");
+  document.getElementById("emptyState").style.display = "none";
 
   const div = document.createElement("div");
   div.classList.add("message", sender);
@@ -27,19 +28,15 @@ function addMessage(text, sender) {
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
-
+// ------------Formatting message------------
 function formatMessage(text) {
   if (!text) return "";
-
   // escape first (important)
   let formatted = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-
-  
   formatted = formatted.replace(/\n/g, "<br>");
-
   // EMAIL
   formatted = formatted.replace(
     /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
@@ -54,24 +51,18 @@ function formatMessage(text) {
 
   return formatted;
 }
+// ---------cleaning bot rply--------
 function cleanTextForSpeech(text) {
-  
   text = text.replace(/([^\x00-\x7F]+)\s+[A-Za-z]+/g, "$1");
-
-  // remove extra spaces
   text = text.trim();
-
   return text;
 }
 
 //  Speak
 function speak(text) {
   const cleanText = cleanTextForSpeech(text);
-
   const utterance = new SpeechSynthesisUtterance(cleanText);
   const voices = speechSynthesis.getVoices();
-
-  
   let voice =
     voices.find(v => v.name.includes("Google") && v.name.includes("Female")) ||
     voices.find(v => v.name.includes("Zira")) ||
@@ -80,15 +71,28 @@ function speak(text) {
 
   utterance.voice = voice;
 
-  
   if (/[\u0900-\u097F]/.test(cleanText)) {
-    utterance.lang = "hi-IN";   
+    utterance.lang = "hi-IN";
   } else {
-    utterance.lang = "en-US";   
+    utterance.lang = "en-US";
   }
 
-  utterance.rate = 0.9;   
-  utterance.pitch = 1.1;  
+  utterance.rate = 0.9;
+  utterance.pitch = 1.1;
+
+  // SET speaking flag
+  isSpeaking = true;
+
+  utterance.onend = () => {
+    isSpeaking = false;
+
+    // restart mic AFTER speaking
+    if (voiceEnabled && !forceStop) {
+      setTimeout(() => {
+        startVoice();
+      }, 300);
+    }
+  };
 
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
@@ -180,6 +184,12 @@ function startVoice() {
   isListening = true;
   voiceEnabled = true;
 
+  recognition.onspeechstart = () => {
+  console.log("🎤 User started speaking");
+
+  interruptSpeech(); 
+};
+
   recognition.onstart = () => {
     typing.innerText = "🎤 Listening...";
     micBtn.classList.add("listening");
@@ -187,30 +197,39 @@ function startVoice() {
   };
 
   recognition.onresult = function (event) {
-    const text =
-      event.results[event.results.length - 1][0].transcript;
 
-    console.log("You said:", text);
+  //  ignore bot voice
+  if (isSpeaking) return;
 
-    if (forceStop) return;
+  const text =
+    event.results[event.results.length - 1][0].transcript;
 
-    //  INTERRUPT
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      isSpeaking = false;
-    }
+  console.log("You said:", text);
 
-    input.value = text;
+  if (forceStop) return;
 
-    setTimeout(() => {
-      if (!forceStop) sendMessage();
-    }, 400);
-  };
+  input.value = text;
 
-  recognition.onerror = function (event) {
-    console.error("Mic error:", event.error);
-    typing.innerText = "❌ Mic error";
-  };
+  setTimeout(() => {
+    if (!forceStop) sendMessage();
+  }, 400);
+};
+
+ recognition.onerror = function (event) {
+  console.error("Mic error:", event.error);
+
+  let msg = "❌ Mic error";
+
+  if (event.error === "not-allowed") {
+    msg = "🎤 Microphone permission denied";
+  } else if (event.error === "no-speech") {
+    msg = "🎤 No speech detected";
+  } else if (event.error === "audio-capture") {
+    msg = "🎤 Mic not found or busy";
+  }
+
+  document.getElementById("typing").innerText = msg;
+};
 
   recognition.onend = function () {
     if (isListening && !forceStop) {
@@ -236,17 +255,12 @@ function stopVoice() {
 
   //  Stop bot speaking
   window.speechSynthesis.cancel();
-
   //  Remove mic glow
   micBtn.classList.remove("listening");
-
-  //  HIDE VOICE WAVE (IMPORTANT)
   const wave = document.getElementById("wave");
   if (wave) {
     wave.classList.add("hidden");
   }
-
-  //  Clear typing properly
   document.getElementById("typing").innerText = "";
 }
 
@@ -259,7 +273,7 @@ function toggleVoice() {
   }
 }
 
-//  CREATE NEW CHAT
+//------  CREATE NEW CHAT
 async function createNewChat() {
   console.log("🔥 New Chat Clicked");
 
@@ -276,7 +290,7 @@ async function createNewChat() {
   loadChats();
 }
 
-//  LOAD SIDEBAR CHATS
+//----------Loading chats in sidebar-------------
 async function loadChats() {
   const res = await fetch("/chats");
   const chats = await res.json();
@@ -321,24 +335,29 @@ async function loadChats() {
 });
 }
 
-// 
+// ----------Open chat on bot page=======
 function openChat(chat) {
   currentChatId = chat._id;
 
   const messages = document.getElementById("messages");
   messages.innerHTML = "";
 
+  const emptyState = document.getElementById("emptyState");
+
   if (chat.messages && chat.messages.length > 0) {
+    emptyState.style.display = "none";
+
     chat.messages.forEach(msg => {
       addMessage(
         msg.content,
         msg.role === "user" ? "user" : "bot"
       );
     });
+  } else {
+    emptyState.style.display = "block";
   }
 }
-
-
+// -----------deleting chat--------
 async function deleteChat(chatId) {
   if (!confirm("Delete this chat?")) return;
 
@@ -363,7 +382,7 @@ async function deleteChat(chatId) {
 window.onload = () => {
   loadChats();
 };
-
+// -----------sidebar-----------
 function toggleSidebar() {
   const sidebar = document.querySelector(".sidebar");
   const overlay = document.querySelector(".overlay");
@@ -418,5 +437,21 @@ imageInput.addEventListener("change", async () => {
   } catch (err) {
     console.error(err);
     addMessage("Error analyzing image", "bot");
+  }
+});
+// =====intrupting bot in between=============
+function interruptSpeech() {
+  if (isSpeaking) {
+    console.log("🛑 Interrupting bot speech");
+
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+}
+// ----------press enter to send message-----
+document.getElementById("input").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); 
+    sendMessage(); 
   }
 });

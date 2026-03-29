@@ -109,13 +109,14 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+   position: relative;
 }
 
 /* TOPBAR */
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 👈 KEY FIX */
+  justify-content: space-between; 
   padding: 12px 20px;
   background: #343541;
 }
@@ -246,7 +247,7 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    left: -260px; /* hidden */
+    left: -260px; 
     top: 0;
     width: 260px;
     height: 100%;
@@ -431,4 +432,28 @@ body {
     font-size: 10px;
     margin: 5px;
   }
+}
+.empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -60%); 
+
+  text-align: center;
+  color: #888;
+
+  width: 100%;
+  max-width: 500px;
+
+  pointer-events: none;
+}
+
+.empty-state h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  font-size: 18px;
 }

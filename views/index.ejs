@@ -28,6 +28,7 @@
         <div class="botName">RaviBot</div>
       </div>
 
+     
       <div class="auth">
         <% if (!user) { %>
           <a href="/login" class="login-btn">Login to chat</a>
@@ -38,7 +39,11 @@
         <% } %>
       </div>
     </div>
-
+      <!-- welcome scrreen -->
+     <div id="emptyState" class="empty-state">
+        <h1>RaviBot</h1>
+        <p>What can I help you with today?</p>
+      </div>
     <!-- CHAT -->
     <div id="messages" class="messages"></div>
 

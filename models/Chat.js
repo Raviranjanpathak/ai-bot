@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const chatSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +12,7 @@ const chatSchema = new mongoose.Schema({
 
   messages: [
     {
-      role: String, // "user" or "bot"
+      role: String, 
       content: String
     }
   ]
