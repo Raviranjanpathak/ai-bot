@@ -31,7 +31,7 @@
      
       <div class="auth">
         <% if (!user) { %>
-          <a href="/login" class="login-btn">Login to chat</a>
+          <a href="/login" class="login-btn">Login</a>
           <a href="/register">Sign up</a>
         <% } else { %>
           <span><%= user.name %></span>
@@ -51,7 +51,7 @@
     <div id="typing" class="typing"></div>
 
     <% if (!user) { %>
-      <div class="typing">🔐 Login to start chatting</div>
+      <div class="typing">🔐 Login to save chats</div>
     <% } %>
 
     <!-- INPUT -->
@@ -82,7 +82,9 @@ function goLogin() {
   window.location.href = "/login";
 }
 </script>
-
+<script>
+  window.isLoggedIn = <%= user ? true : false %>;
+</script>
 <script src="/js/script.js"></script>
 
 </body>

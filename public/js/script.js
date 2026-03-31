@@ -64,7 +64,7 @@ function cleanTextForSpeech(text) {
 function speak(text) {
   const cleanText = cleanTextForSpeech(text);
 
-  // 🛑 HARD STOP mic (mobile fix)
+  //  HARD STOP mic (mobile fix)
   if (recognition && recognitionActive) {
     try {
       recognition.onend = null;
@@ -118,7 +118,11 @@ async function sendMessage() {
   if (!msg) return;
 
   //  AUTO CREATE CHAT IF NOT EXISTS
-  if (!currentChatId) {
+  // if (!currentChatId) {
+  //   await createNewChat();
+  // }
+  // ONLY CREATE CHAT IF USER LOGGED IN
+  if (!currentChatId && window.isLoggedIn) {
     await createNewChat();
   }
 
@@ -135,7 +139,7 @@ async function sendMessage() {
       },
       body: JSON.stringify({
         message: msg,
-        chatId: currentChatId
+        chatId: window.isLoggedIn ? currentChatId : null
       })
     });
 
@@ -294,12 +298,12 @@ function toggleVoice() {
 
 //------  CREATE NEW CHAT
 async function createNewChat() {
-  console.log("🔥 New Chat Clicked");
+  console.log(" New Chat Clicked");
 
   const res = await fetch("/new-chat", { method: "POST" });
   const chat = await res.json();
 
-  console.log("🆕 New Chat ID:", chat._id);
+  console.log(" New Chat ID:", chat._id);
 
   currentChatId = chat._id;
 
@@ -461,7 +465,7 @@ imageInput.addEventListener("change", async () => {
 // =====intrupting bot in between=============
 function interruptSpeech() {
   if (isSpeaking) {
-    console.log("🛑 Interrupting bot speech");
+    console.log(" Interrupting bot speech");
 
     speechSynthesis.cancel();
     isSpeaking = false;

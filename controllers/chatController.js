@@ -140,9 +140,9 @@ function cleanResponse(text) {
 
 
 exports.chat = async (req, res) => {
-if (!req.session.user) {
-        return res.status(401).json({ error: "Please login first" });
-      }
+// if (!req.session.user) {
+//         return res.status(401).json({ error: "Please login first" });
+//       }
     
       try {
         const { message, chatId } = req.body;
@@ -304,25 +304,48 @@ I'm always happy to help and collaborate with you!`;
           }
         }
         //  SAVE TO CHAT (FIXED)
-        const chat = await Chat.findById(chatId);
-        if (!chat) {
-          return res.json({ reply: "Chat not found" });
-        }
-        //  user message
-        chat.messages.push({
-          role: "user",
-          content: message
-        });
+        // const chat = await Chat.findById(chatId);
+        // if (!chat) {
+        //   return res.json({ reply: "Chat not found" });
+        // }
+        // //  user message
+        // chat.messages.push({
+        //   role: "user",
+        //   content: message
+        // });
     
-        //  bot message
-        chat.messages.push({
-          role: "bot",
-          content: reply
-        });
-        if (chat.title === "New Chat") {
-          chat.title = message.substring(0, 25);
+        // //  bot message
+        // chat.messages.push({
+        //   role: "bot",
+        //   content: reply
+        // });
+        // if (chat.title === "New Chat") {
+        //   chat.title = message.substring(0, 25);
+        // }
+        // await chat.save();
+
+        //  ONLY SAVE IF USER LOGGED IN
+        if (req.session.user && chatId) {
+          const chat = await Chat.findById(chatId);
+
+          if (chat) {
+            chat.messages.push({
+              role: "user",
+              content: message
+            });
+
+            chat.messages.push({
+              role: "bot",
+              content: reply
+            });
+
+            if (chat.title === "New Chat") {
+              chat.title = message.substring(0, 25);
+            }
+
+            await chat.save();
+          }
         }
-        await chat.save();
         res.json({ reply });
     
       } catch (error) {
